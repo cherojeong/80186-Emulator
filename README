@@ -1,0 +1,7 @@
+A (~75% complete) work-in-progress 80186 emulator.
+
+Can run MikeOS-4.5	http://mikeos.sourceforge.net/
+PC-DOS does not currently work.
+
+Dependencies:
+SDL2		https://www.libsdl.org/download-2.0.php		Tested with version 2.0.5 for Windows
