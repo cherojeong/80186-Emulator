@@ -2814,9 +2814,7 @@ namespace CPU {
 
 		case 0x90:
 		{ /* nop (xchg ax, ax) */
-			cout << "NOP (XCHG AX, AX)" << endl;
-			dump();
-			dump_ram("ram.bin");
+			//cout << "NOP (XCHG AX, AX)" << endl;
 			if (CS == 0x9fC0 && IP < 256) {
 				cout << "Interrupt " << (IP - 1) << " still has default IVT value!" << endl;
 				return 2;
@@ -3610,8 +3608,6 @@ namespace CPU {
 				/* div */
 				if (!rm16) {
 					cout << "Divide by 0! op 0xf7, op2 0x" << hex << (unsigned)op2 << dec << endl;
-					dump();
-					dump_ram("ram.bin");
 					interrupt(0);
 				}
 				else {

@@ -47,7 +47,4 @@ int main(int argc, char **argv)
 	System::dump_ram("ram.bin");
 	System::destroy();
 
-#ifdef _WIN32
-	getc(stdin);
-#endif
 }

@@ -190,8 +190,8 @@ namespace System {
 	int bios_interrupt(uint8_t n, uint16_t * registers, uint16_t * segment_registers, uint16_t * FLAGS)
 	{
 
-		if(n != 0x16)
-		cout << "Interrupt 0x" << hex << (unsigned)n << ", AX = 0x" << registers[0] << dec << endl;
+		//if(n != 0x16)
+		//	cout << "Interrupt 0x" << hex << (unsigned)n << ", AX = 0x" << registers[0] << dec << endl;
 
 #define AX registers[0]
 #define CX registers[1]

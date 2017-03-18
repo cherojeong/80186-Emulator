@@ -63,7 +63,7 @@ int update_window(bool forceUpdate)
 	auto now = chrono::high_resolution_clock::now();
 	double deltaTime = chrono::duration_cast<chrono::microseconds>(now - lastFrameTime).count() / 1000000.0f;
 
-	if ((deltaTime > (1.0 / 30)) || forceUpdate) {
+	if ((deltaTime > (1.0 / 30.0)) || forceUpdate) {
 		uint8_t * c = &System::ram_8[0xb8000];
 		for (int y = 0; y < 25; y++) {
 			for (int x = 0; x < 80; x++) {
