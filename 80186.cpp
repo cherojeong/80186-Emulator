@@ -2798,6 +2798,20 @@ namespace CPU {
 			break;
 		}
 
+		case 0x8d:
+		{ /* lea reg16, mem16 */
+			uint8_t op2 = ram_get_8(CS, IP++);
+
+			int rm = op2 & 7;
+			int reg = (op2 >> 3) & 7;
+			int mode = (op2 >> 6) & 3;
+
+			int16_t ipOffset = 0;
+			registers[reg] = get_with_mode(segment, mode, rm, ipOffset, 0, true);
+			IP += ipOffset;
+			break;
+		}
+
 		case 0x8e:
 		{ /* mov seg, rm16 */
 			uint8_t op2 = ram_get_8(CS, IP++);
@@ -2808,6 +2822,20 @@ namespace CPU {
 
 			int16_t ipOffset = 0;
 			segment_registers[reg] = get_with_mode(segment, mode, rm, ipOffset, 0);
+			IP += ipOffset;
+			break;
+		}
+
+		case 0x8f:
+		{ /* pop rm16 */
+			uint8_t op2 = ram_get_8(CS, IP++);
+
+			int rm = op2 & 7;
+			int reg = (op2 >> 3) & 7;
+			int mode = (op2 >> 6) & 3;
+
+			int16_t ipOffset = 0;
+			set_with_mode(segment, mode, rm, registers[reg], ipOffset);
 			IP += ipOffset;
 			break;
 		}
