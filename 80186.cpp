@@ -115,7 +115,7 @@ namespace CPU {
 
 	/* Used by many instructions for the 'rm16' operand */
 
-	static uint16_t get_with_mode(uint16_t segment, int mode, int rm, int16_t& ipOffset, uint16_t * nextWord)
+	static uint16_t get_with_mode(uint16_t segment, int mode, int rm, int16_t& ipOffset, uint16_t * nextWord, bool lea = false)
 	{
 		ipOffset = 0;
 		if (!mode) {
@@ -150,6 +150,9 @@ namespace CPU {
 
 			if (nextWord)
 				*nextWord = ram_get_16(segment, address + 2);
+
+			if(lea)
+				return address;
 
 			return ram_get_16(segment, address);
 		}
@@ -187,6 +190,9 @@ namespace CPU {
 			if (nextWord)
 				*nextWord = ram_get_16(segment, address + 2);
 
+			if(lea)
+				return address;
+
 			return ram_get_16(segment, address);
 		}
 		else if (mode == 2) {
@@ -222,6 +228,9 @@ namespace CPU {
 
 			if (nextWord)
 				*nextWord = ram_get_16(segment, address + 2);
+
+			if(lea)
+				return address;
 
 			return ram_get_16(segment, address);
 		}
