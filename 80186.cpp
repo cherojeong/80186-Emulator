@@ -1279,6 +1279,16 @@ namespace CPU {
 		return result;
 	}
 
+	uint16_t sbb_16(uint16_t dst, uint16_t src)
+	{
+		return sub_16(dst, src + ((FLAGS & CF) >> CF_));
+	}
+
+	uint8_t sbb_8(uint8_t dst, uint8_t src)
+	{
+		return sub_8(dst, src + ((FLAGS & CF) >> CF_));
+	}
+
 #define REP_NONE 0
 #define REP_CX_0 1
 #define REP_CX_0_ZF_0 2
@@ -1925,6 +1935,67 @@ namespace CPU {
 			break;
 		}
 
+		case 0x18:
+		{ /* sbb rm8, reg8 */
+			uint8_t op2 = ram_get_8(CS, IP++);
+
+			int rm = op2 & 7;
+			int reg = (op2 >> 3) & 7;
+			int mode = (op2 >> 6) & 3;
+
+			int16_t ipOffset = 0;
+			if (reg < 4)
+				set_with_mode_8(segment, mode, rm, sbb_8(get_with_mode_8(segment, mode, rm, ipOffset), registers[reg] & 0xff), ipOffset);
+			else
+				set_with_mode_8(segment, mode, rm, sbb_8(get_with_mode_8(segment, mode, rm, ipOffset), registers[reg - 4] >> 8), ipOffset);
+			IP += ipOffset;
+			break;
+		}
+
+		case 0x19:
+		{ /* sbb rm16, reg16 */
+			uint8_t op2 = ram_get_8(CS, IP++);
+
+			int rm = op2 & 7;
+			int reg = (op2 >> 3) & 7;
+			int mode = (op2 >> 6) & 3;
+
+			int16_t ipOffset = 0;
+			set_with_mode(segment, mode, rm, sbb_16(get_with_mode(segment, mode, rm, ipOffset, 0), registers[reg]), ipOffset);
+			IP += ipOffset;
+			break;
+		}
+
+		case 0x1a:
+		{ /* sbb reg8, rm8 */
+			uint8_t op2 = ram_get_8(CS, IP++);
+
+			int rm = op2 & 7;
+			int reg = (op2 >> 3) & 7;
+			int mode = (op2 >> 6) & 3;
+
+			int16_t ipOffset = 0;
+			if (reg < 4)
+				((uint8_t*)&registers[reg])[0] = sbb_8((uint8_t)registers[reg], get_with_mode_8(segment, mode, rm, ipOffset));
+			else
+				((uint8_t*)&registers[reg - 4])[1] = sbb_8(registers[reg-4] >> 8, get_with_mode_8(segment, mode, rm, ipOffset));
+			IP += ipOffset;
+			break;
+		}
+
+		case 0x1c:
+		{ /* sbb al, imm8 */
+			((uint8_t *)&AX)[0] = sbb_8((uint8_t)AX, ram_get_8(CS, IP++));
+			break;
+		}
+
+		case 0x1d:
+		{ /* and ax, imm16 */
+			AX = sbb_16(AX, ram_get_16(CS, IP));
+			IP += 2;
+			break;
+		}
+
 		case 0x1e:
 		{
 			push(DS);
@@ -2116,6 +2187,27 @@ namespace CPU {
 		{ /* sub ax, imm16 */
 			AX = sub_16(AX, ram_get_16(CS, IP));
 			IP += 2;
+			break;
+		}
+
+		case 0x2f:
+		{ /* das */
+			uint8_t OldAL = (uint8_t)AX;
+			uint8_t OldCF = (FLAGS & CF) >> CF_;
+			FLAGS &= ~CF;
+
+			if((AX & 0xF) > 9 || FLAGS & AF) {
+				if((uint8_t)AX > 6) FLAGS |= CF;
+				else FLAGS |= OldCF;
+				FLAGS |= AF;
+			}
+			else FLAGS &= ~AF;
+
+			if(OldAL > 0x99 || OldCF) {
+				((uint8_t *)&AX)[0] = (uint8_t)AX - 0x60;
+				FLAGS |= CF;
+			}
+			else FLAGS &= ~CF;
 			break;
 		}
 
@@ -2640,7 +2732,8 @@ namespace CPU {
 			else if (reg == 5)
 				set_with_mode(segment, mode, rm, sub_16(value, imm8), ipOffset);
 			else {
-				cout << "unimplemented op 0x83 format, reg=" << reg << endl;
+				// reg == 3
+				set_with_mode(segment, mode, rm, sbb_16(value, imm8), ipOffset);
 			}
 			IP += ipOffset + 1;
 			break;
@@ -2913,6 +3006,14 @@ namespace CPU {
 		case 0x9d:
 		{ /* popf */
 			FLAGS = pop();
+			FLAGS |= 0xf000;
+			FLAGS &= ~0x2a;
+			break;
+		}
+
+		case 0x9f:
+		{ /* lahf */
+			((uint8_t *)&AX)[1] = (uint8_t)FLAGS;
 			break;
 		}
 
@@ -3219,6 +3320,8 @@ namespace CPU {
 			IP = pop();
 			CS = pop();
 			FLAGS = pop();
+			FLAGS |= 0xf000;
+			FLAGS &= ~0x2a;
 			break;
 		}
 
