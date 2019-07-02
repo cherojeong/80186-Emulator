@@ -4,8 +4,25 @@
 
 #include <iostream>
 #include <thread>
+#include <atomic>
 
 using namespace std;
+
+atomic<bool> stop = false;
+
+void sdl_thread()
+{
+	create_window();
+	while (!stop) {
+		int r = update_window(true);
+		if (r)
+			break;
+
+		this_thread::sleep_for(chrono::milliseconds(32));
+	}
+	stop = true;
+	destroy_window();
+}
 
 int main(int argc, char **argv)
 {
@@ -20,28 +37,27 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	create_window();
 
-	while (1) {
+	thread t(sdl_thread);
+
+	while (!stop) {
 		int halted = CPU::step();
 
 		if (halted == 2) {
 			break;
 		}
 
-		int r = update_window();
-		if (r)
-			break;
-
 		if (halted == 1) { // halted with interrupts enabled
 			//this_thread::sleep_for(2ms);
 		}
 		else if (halted == 3) { // waiting for user input
-			this_thread::sleep_for(15ms);
+			this_thread::sleep_for(30ms);
 		}
 	}
+	stop = true;
 
-	destroy_window();
+	t.join();
+
 
 	CPU::dump();
 	System::dump_ram("ram.bin");
