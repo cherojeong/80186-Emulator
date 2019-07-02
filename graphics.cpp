@@ -63,7 +63,7 @@ int update_window(bool forceUpdate)
 	auto now = chrono::high_resolution_clock::now();
 	double deltaTime = chrono::duration_cast<chrono::microseconds>(now - lastFrameTime).count() / 1000000.0f;
 
-	if ((deltaTime > (1.0 / 30.0)) || forceUpdate) {
+	if (forceUpdate || (deltaTime > (1.0 / 30.0))) {
 		uint8_t * c = &System::ram_8[0xb8000];
 		for (int y = 0; y < 25; y++) {
 			for (int x = 0; x < 80; x++) {
@@ -71,7 +71,7 @@ int update_window(bool forceUpdate)
 				uint8_t attribute = c[1];
 				c += 2;
 
-				static uint32_t colours[] = {
+				static const uint32_t colours[] = {
 					0xff000000,
 					0xff0000aa,
 					0xff00aa00,
@@ -94,18 +94,16 @@ int update_window(bool forceUpdate)
 				uint32_t fg = colours[attribute & 0xf];
 				uint32_t bg = colours[attribute >> 4];
 
+				uint32_t bgfg[2] = { bg,fg };
+
 				int fontOffset = character * 16;
 				int framebufferOffset = (y * 80 * 9 * 16) + (x*9);
 				for (int i = 0; i < 16; i++) {
 					uint8_t fontByte = vga_font[fontOffset++];
 					int off = framebufferOffset;
 					for (int j = 0; j < 8; j++) {
-						if (fontByte & (1 << (8-j))) {
-							pixels[off] = fg;
-						}
-						else {
-							pixels[off] = bg;
-						}
+						int a = (8 - j);
+						pixels[off] = bgfg[(fontByte & (1 << a)) >> a];
 						off++;
 					}
 					pixels[off] = bg;

@@ -41,20 +41,26 @@ int main(int argc, char **argv)
 	thread t(sdl_thread);
 
 	while (!stop) {
-		int halted = CPU::step();
+		for (int i = 0; i < 10000; i++) {
+			int halted = CPU::step();
 
-		if (halted == 2) {
-			break;
-		}
+			if (halted == 2) {
+				stop = true;
+				break;
+			}
 
-		if (halted == 1) { // halted with interrupts enabled
-			//this_thread::sleep_for(2ms);
-		}
-		else if (halted == 3) { // waiting for user input
-			this_thread::sleep_for(30ms);
+			if (halted == 1) { // halted with interrupts enabled
+				this_thread::sleep_for(2ms);
+			}
+			else if (halted == 3) { // waiting for user input
+				this_thread::sleep_for(30ms);
+
+				if (stop) {
+					break;
+				}
+			}
 		}
 	}
-	stop = true;
 
 	t.join();
 
