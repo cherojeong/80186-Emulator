@@ -103,7 +103,7 @@ namespace System {
 
 		floppyFile.seekg(0);
 		floppyFile.read(floppyDisk, floppyFileSize);
-		memcpy(&ram_8[0x7c00], floppyDisk, floppyFileSize);
+		memcpy(&ram_8[0x7c00], floppyDisk, floppyFileSize > 512 ? 512 : floppyFileSize);
 
 		floppyFile.close();
 
