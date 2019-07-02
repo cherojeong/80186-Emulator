@@ -90,13 +90,7 @@ namespace System {
 		bios.seekg(0);
 		bios.read((char *)&ram_8[0xe0000], biosFileSize);*/
 
-		//ifstream floppyFile = ifstream("D:/x86_16_Emulator/16bitos/16bitos.img", ios::ate | ios::binary);
-		//ifstream floppyFile = ifstream("D:/x86_16_Emulator/asm/pcdos1.img", ios::ate | ios::binary);
-		//ifstream floppyFile = ifstream("D:/x86_16_Emulator/asm/pcdos1.10.img", ios::ate | ios::binary);
-		//ifstream floppyFile = ifstream("D:/x86_16_Emulator/asm/pcdos2.10/Disk01.img", ios::ate | ios::binary);
-		ifstream floppyFile = ifstream("D:/x86_16_Emulator/asm/mikeos-4.5/disk_images/mikeos.flp", ios::ate | ios::binary);
-
-		//ifstream floppyFile = ifstream("/run/media/daniel/Storage/x86_16_Emulator/asm/mikeos-4.5/disk_images/mikeos.flp", ios::ate | ios::binary);
+		ifstream floppyFile = ifstream("D:/80186/mikeos.flp", ios::ate | ios::binary);
 
 		if (!floppyFile.is_open()) {
 			cout << "Error opening floppy" << endl;
@@ -510,7 +504,7 @@ namespace System {
 				}
 				return 1;
 			} 
-			else if ((AX & 0xff00) == 0x0100) {
+			else if ((AX & 0xff00) == 0x0100 || (AX & 0xff00) == 0x1100) {
 				if (keyPress) {
 					*FLAGS |= ZF;
 					AX = do_keypress();
