@@ -132,9 +132,9 @@ namespace System {
 		delete[] floppyDisk;
 	}
 
-	static int x = 0;
-	static int y = 0;
-	static int attribute = 0x0f;
+	static uint16_t x = 0;
+	static uint16_t y = 0;
+	static uint8_t attribute = 0x0f;
 
 	static inline void scroll()
 	{
@@ -251,8 +251,8 @@ namespace System {
 				}
 			}
 			else if ((AX & 0xff00) == 0x0900) {
-				int oldx = x;
-				int oldy = y;
+				uint16_t oldx = x;
+				uint16_t oldy = y;
 				for (unsigned int i = 0; i < CX && i < 80 * 25; i++) {
 					text_mode_write_character((char)AX, (char)BX);
 				}
@@ -287,7 +287,7 @@ namespace System {
 			else if ((AX & 0xff00) == 0x0600) {
 				/* Scroll up window */
 				uint8_t lines = (uint8_t)AX;
-				uint8_t blank = BX & 0xff00;
+				uint8_t blank = (uint8_t)(BX >> 8);
 				uint8_t tlX = (uint8_t)CX;
 				uint8_t tlY = CX >> 8;
 				uint8_t brX = (uint8_t)DX;
@@ -518,6 +518,10 @@ namespace System {
 		else if (n == 0x1a) {
 			if (!(AX & 0xff00)) {
 				/* Get clock ticks since midnight */
+
+				static int prevDay = -1;
+
+
 				auto now = chrono::system_clock::now();
 
 				/* Get midnight */
@@ -528,12 +532,19 @@ namespace System {
 				date->tm_sec = 0;
 				auto midnight = chrono::system_clock::from_time_t(mktime(date));
 
-				uint32_t ticks = chrono::duration_cast<chrono::milliseconds>(now - midnight).count() / 55;
+				uint32_t ticks = (uint32_t)(chrono::duration_cast<chrono::milliseconds>(now - midnight).count() / 55);
 				DX = (uint16_t)ticks;
 				CX = ticks >> 16;
 
 				static auto lastTime = chrono::system_clock::now();
-				// TODO AL = number of times midnight has past
+
+				if (prevDay == -1 || prevDay == date->tm_yday) {
+					AX &= 0xff00;
+				}
+				else {
+					AX |= 1;
+				}
+				prevDay = date->tm_yday;
 
 			}
 		}

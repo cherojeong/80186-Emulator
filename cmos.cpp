@@ -10,24 +10,26 @@ namespace Devices {
 
 	uint16_t get(uint16_t port)
 	{
+		(void)port;
+
 		time_t t = time(0);   // get time now
 		struct tm * now = localtime(&t);
 
 		switch (active_register) {
 		case 0:
-			return now->tm_sec;
+			return (uint16_t)now->tm_sec;
 		case 2:
-			return now->tm_min;
+			return (uint16_t)now->tm_min;
 		case 4:
-			return now->tm_hour;
+			return (uint16_t)now->tm_hour;
 		case 6:
-			return now->tm_wday;
+			return (uint16_t)now->tm_wday;
 		case 7:
-			return now->tm_mday;
+			return (uint16_t)now->tm_mday;
 		case 8:
-			return now->tm_mon;
+			return (uint16_t)now->tm_mon;
 		case 9:
-			return now->tm_year;
+			return (uint16_t)now->tm_year;
 		default:
 			return 0;
 		}
@@ -47,6 +49,7 @@ namespace Devices {
 
 	void io_write_8(uint16_t port, uint8_t value)
 	{
+		(void)port;
 		active_register = value;
 	}
 

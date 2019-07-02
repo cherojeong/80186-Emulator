@@ -1168,10 +1168,10 @@ namespace CPU {
 	uint16_t rcl_16(uint16_t dst, uint8_t n)
 	{
 		uint16_t originalSignBit = dst >> 15;
-		unsigned int cf = FLAGS & CF;
+		uint16_t cf = (FLAGS & CF);
 		for (unsigned int i = 0; i < n; i++) {
-			unsigned int tmpcf = dst >> 15;
-			dst = dst << 1 | cf;
+			uint16_t tmpcf = dst >> 15;
+			dst = (dst << 1) | cf;
 			cf = tmpcf;
 		}
 		if (cf)
@@ -1190,10 +1190,10 @@ namespace CPU {
 	uint8_t rcl_8(uint8_t dst, uint8_t n)
 	{
 		uint8_t originalSignBit = dst >> 7;
-		unsigned int cf = FLAGS & CF;
+		uint8_t cf = (FLAGS & CF);
 		for (unsigned int i = 0; i < n; i++) {
-			unsigned int tmpcf = dst >> 7;
-			dst = dst << 1 | cf;
+			uint8_t tmpcf = dst >> 7;
+			dst = (dst << 1) | cf;
 			cf = tmpcf;
 		}
 		if (cf)
@@ -1467,8 +1467,8 @@ namespace CPU {
 #ifdef BIOS_INTERRUPT_HOOK
 
 		if ((CS * 16 + IP) >= 0x9fC00 && (CS * 16 + IP) < (0x9fC00 + 256)) {
-			int n = (CS * 16 + IP) - 0x9fC00;
-			int doNotIret = bios_interrupt(n, registers, segment_registers, &FLAGS);
+			int n = ((unsigned int)CS * 16 + IP) - 0x9fC00;
+			int doNotIret = bios_interrupt((uint8_t)n, registers, segment_registers, &FLAGS);
 			if (!doNotIret) {
 				/* iret */
 				IP = pop();
@@ -2518,11 +2518,11 @@ namespace CPU {
 			int mode = (op2 >> 6) & 3;
 
 			int16_t ipOffset = 0;
-			uint16_t value = get_with_mode(segment, mode, rm, ipOffset, 0);
+			int16_t value = get_with_mode(segment, mode, rm, ipOffset, 0);
 
-			uint16_t imm16 = ram_get_16(CS, IP + ipOffset);
+			int16_t imm16 = ram_get_16(CS, IP + ipOffset);
 
-			registers[reg] = imul_16(value, imm16);
+			registers[reg] = (uint16_t)imul_16(value, imm16);
 
 			IP += ipOffset + 2;
 			break;
@@ -2545,9 +2545,9 @@ namespace CPU {
 			int16_t ipOffset = 0;
 			uint16_t value = get_with_mode(segment, mode, rm, ipOffset, 0);
 
-			uint8_t imm8 = sign_extend(ram_get_8(CS, IP + ipOffset));
+			uint8_t imm8 = ram_get_8(CS, IP + ipOffset);
 
-			registers[reg] = imul_16(value, (int16_t)imm8);
+			registers[reg] = (uint16_t)imul_16(value, (int16_t)imm8);
 
 			IP += ipOffset + 1;
 			break;
