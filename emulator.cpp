@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 		for (int i = 0; i < 10000; i++) {
 			int halted = CPU::step();
 
-			if (halted == 2) {
+			if (halted == 2 || halted == 4) {
 				stop = true;
 				break;
 			}

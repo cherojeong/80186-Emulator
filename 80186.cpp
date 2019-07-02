@@ -1468,8 +1468,8 @@ namespace CPU {
 
 		if ((CS * 16 + IP) >= 0x9fC00 && (CS * 16 + IP) < (0x9fC00 + 256)) {
 			int n = ((unsigned int)CS * 16 + IP) - 0x9fC00;
-			int doNotIret = bios_interrupt((uint8_t)n, registers, segment_registers, &FLAGS);
-			if (!doNotIret) {
+			int r = bios_interrupt((uint8_t)n, registers, segment_registers, &FLAGS);
+			if (!r) {
 				/* iret */
 				IP = pop();
 				CS = pop();
@@ -1477,6 +1477,9 @@ namespace CPU {
 				FLAGS &= ~IF;
 				FLAGS |= flags & IF;
 				return 0;
+			}
+			else if (r == 2) {
+				return 4;
 			}
 			return 3;
 		}

@@ -99,17 +99,11 @@ namespace System {
 
 		floppyFileSize = (size_t)floppyFile.tellg();
 
-		if (floppyFileSize != 160 * 1024 && floppyFileSize != 180 * 1024 && floppyFileSize != 1440 * 1024) {
-			cerr << "Unrecognised floopy disk size: " << (floppyFileSize / 1024) << "KiB" << endl;
-			floppyFile.close();
-			return 1;
-		}
-
 		floppyDisk = new char[floppyFileSize];
 
 		floppyFile.seekg(0);
 		floppyFile.read(floppyDisk, floppyFileSize);
-		memcpy(&ram_8[0x7c00], floppyDisk, floppyFileSize > 512 ? 512 : floppyFileSize);
+		memcpy(&ram_8[0x7c00], floppyDisk, floppyFileSize);
 
 		floppyFile.close();
 
@@ -337,14 +331,7 @@ namespace System {
 				cout << "int 0x10, ax = " << hex << AX << dec << endl;
 		}
 		else if (n == 0x19) {
-			cout << "SYSTEM RESET" << endl;
-			System::dump_ram("ram.bin");
-			System::destroy();
-
-#ifdef _WIN32
-			system("PAUSE");
-#endif
-			exit(0);
+			return 2;
 		}
 		else if (n == 0x13) {
 			uint8_t AH = (uint8_t)(registers[0] >> 8);

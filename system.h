@@ -25,7 +25,10 @@ namespace System {
 	#define ram_get_16(seg,off) ((uint16_t)(System::ram_8[seg*16 + off] | (System::ram_8[seg*16 + off + 1] << 8)))
 
 	int create();
+
+	// Returns 0: CPU should iret. 1: waiting on user input. 2: System Reset
 	int bios_interrupt(uint8_t n, uint16_t * registers, uint16_t * segment_registers, uint16_t * FLAGS);
+
 	void destroy();
 
 	uint8_t in_8(uint16_t port);
