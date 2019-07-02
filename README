@@ -1,6 +1,6 @@
 A (~75% complete) work-in-progress 80186 emulator.
 
-Can run MikeOS-4.5	http://mikeos.sourceforge.net/
+Can run MikeOS-4.6.1	http://mikeos.sourceforge.net/
 PC-DOS does not currently work.
 
 Dependencies:
