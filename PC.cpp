@@ -99,6 +99,13 @@ namespace System {
 
 		floppyFileSize = (size_t)floppyFile.tellg();
 
+		if (floppyFileSize != 160 * 1024 && floppyFileSize != 180 * 1024 && floppyFileSize != 1440 * 1024
+			&& floppyFileSize != 360 * 1024) {
+			cerr << "Unrecognised floopy disk size: " << (floppyFileSize / 1024) << "KiB" << endl;
+			floppyFile.close();
+			return 1;
+		}
+
 		floppyDisk = new char[floppyFileSize];
 
 		floppyFile.seekg(0);
@@ -366,6 +373,9 @@ namespace System {
 				}
 				else if (floppyFileSize == 1440 * 1024) {
 					offset = 512 * (18 * (cylinder*2 + head) + (sector - 1));
+				}
+				else if (floppyFileSize == 360 * 1024) {
+					offset = 512 * ((cylinder*2 + head) * 9 + (sector - 1));
 				}
 				int ramAddress = ES * 16 + BX;
 
