@@ -1455,7 +1455,7 @@ namespace CPU {
 		}
 
 		default:
-			cout << "Unrecognised op (with rep prefix): " << hex << (unsigned int)op << dec << endl;
+			cout << "Unrecognised op (with rep prefix): " << hex << (unsigned int)op << " at 0x" << (CS*16 + IP - 1) << dec << endl;
 			return 1;
 		}
 		return 0;
@@ -1840,6 +1840,26 @@ namespace CPU {
 					IP += (int16_t)ram_get_16(CS, IP);
 				IP += 2;
 				break;
+			case 0xb2:
+			{ /* lss reg16,mem16  */
+				uint8_t op2 = ram_get_8(CS, IP++);
+
+				int rm = op2 & 7;
+				int reg = (op2 >> 3) & 7;
+				int mode = (op2 >> 6) & 3;
+
+				int16_t ipOffset = 0;
+				uint16_t ramAddress = get_with_mode(segment, mode, rm, ipOffset, 0);
+
+				uint16_t w0 = ram_get_16(segment, ramAddress);
+				uint16_t w1 = ram_get_16(segment, ramAddress + 2);
+
+				registers[reg] = w0;
+				SS = w1;
+
+				IP += ipOffset;
+				break;
+			}
 			default:
 				cout << "Unrecognised op2 for 0x0f (0x" << hex << (unsigned)op << dec << "). May be pop cs or unimplemented opcode (TODO remove this message)" << endl;
 				CS = pop();
@@ -3226,6 +3246,27 @@ namespace CPU {
 		case 0xc3:
 		{ /* ret */
 			IP = pop();
+			break;
+		}
+
+		case 0xc4:
+		{ /* les reg16,mem16  */
+			uint8_t op2 = ram_get_8(CS, IP++);
+
+			int rm = op2 & 7;
+			int reg = (op2 >> 3) & 7;
+			int mode = (op2 >> 6) & 3;
+
+			int16_t ipOffset = 0;
+			uint16_t ramAddress = get_with_mode(segment, mode, rm, ipOffset, 0);
+
+			uint16_t w0 = ram_get_16(segment, ramAddress);
+			uint16_t w1 = ram_get_16(segment, ramAddress + 2);
+
+			registers[reg] = w0;
+			ES = w1;
+
+			IP += ipOffset;
 			break;
 		}
 
